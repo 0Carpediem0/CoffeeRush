@@ -1,0 +1,14 @@
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\CoffeeRush.exe
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\CoffeeRush.deps.json
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\CoffeeRush.runtimeconfig.json
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\CoffeeRush.dll
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\CoffeeRush.pdb
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\obj\Debug\net10.0-windows\CoffeeRush.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\obj\Debug\net10.0-windows\CoffeeRush.AssemblyInfoInputs.cache
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\obj\Debug\net10.0-windows\CoffeeRush.AssemblyInfo.cs
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\obj\Debug\net10.0-windows\CoffeeRush.csproj.CoreCompileInputs.cache
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\obj\Debug\net10.0-windows\CoffeeRush.dll
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\obj\Debug\net10.0-windows\refint\CoffeeRush.dll
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\obj\Debug\net10.0-windows\CoffeeRush.pdb
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\obj\Debug\net10.0-windows\CoffeeRush.genruntimeconfig.cache
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\obj\Debug\net10.0-windows\ref\CoffeeRush.dll

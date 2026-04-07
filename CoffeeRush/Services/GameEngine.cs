@@ -11,9 +11,11 @@ public class GameEngine
     private float _taskSpawnTimer;
     private float _pickupSpawnTimer;
     private float _survivalScoreTimer;
+    private float _bossHideTimer = 0;
+    private const float BossHideTime = 5f;
 
     // Настройки
-    private const float EnergyDecayRate = 2f; // % в секунду
+    private const float EnergyDecayRate = 0.8f; // было 2f
     private const int MaxTasks = 3;
     private const float TaskSpawnInterval = 8f;
     private const float PickupSpawnInterval = 6f;
@@ -30,10 +32,12 @@ public class GameEngine
     {
         _gameState.Reset();
         _gameState.PlayerBooth = new Booth { X = 50, Y = 300 };
-        _gameState.Player.X = _gameState.PlayerBooth.X + 30;
+        _gameState.Player.X = _gameState.PlayerBooth.X + 80;
         _gameState.Player.Y = _gameState.PlayerBooth.Y + 30;
-        _gameState.Player.IsInBooth = true;
-
+        _gameState.Player.IsInBooth = false;
+        _gameState.Boss.AppearanceTimer = 15f;  
+        _bossHideTimer = 0;
+        
         _nextTaskId = 1;
         _nextPickupId = 1;
         _taskSpawnTimer = 0;
@@ -55,6 +59,11 @@ public class GameEngine
         UpdateSurvivalScore(deltaTime);
         CheckCollisions();
         CheckGameOver();
+    }
+
+    public void DeactivateBoss()
+    {
+        _gameState.Boss.Deactivate();
     }
 
     private void UpdateEnergy(float deltaTime)
@@ -135,16 +144,22 @@ public class GameEngine
             return;
         }
 
-        // Если игрок не в кабинке - преследовать
-        if (!_gameState.Player.IsInBooth)
+        // Если игрок в кабинке - начать отсчет времени до исчезновения босса
+        if (_gameState.Player.IsInBooth)
         {
-            boss.Chase(_gameState.Player.X, _gameState.Player.Y, deltaTime);
+            _bossHideTimer += deltaTime;
+            if (_bossHideTimer >= BossHideTime)
+            {
+                boss.Deactivate();
+                _bossHideTimer = 0;
+                return;
+            }
         }
         else
         {
-            // Игрок в кабинке - вернуться к патрулированию
-            boss.StartReturning();
-            boss.Update(deltaTime);
+            // Игрок вышел - сбрасываем таймер
+            _bossHideTimer = 0;
+            boss.Chase(_gameState.Player.X, _gameState.Player.Y, deltaTime);
         }
     }
 
@@ -258,5 +273,19 @@ public class GameEngine
         _gameState.Player.X = booth.X + booth.Width / 2;
         _gameState.Player.Y = booth.Y + booth.Height / 2;
         _gameState.Player.IsInBooth = true;
+    }
+
+    public void LeaveBooth()
+    {
+        var booth = _gameState.PlayerBooth;
+        _gameState.Player.X = booth.X + booth.Width + 30;
+        _gameState.Player.Y = booth.Y + booth.Height / 2;
+        _gameState.Player.IsInBooth = false;
+    }
+
+    public void MovePlayerTo(float x, float y)
+    {
+        _gameState.Player.X = x;
+        _gameState.Player.Y = y;
     }
 }
