@@ -14,6 +14,8 @@ public class GameStateData
     public Player Player { get; set; } = new();
     public Boss Boss { get; set; } = new();
     public Booth PlayerBooth { get; set; } = new();
+    public string LandscapeName { get; set; } = "";
+    public List<Obstacle> Obstacles { get; set; } = new();
     public List<WorkTask> Tasks { get; set; } = new();
     public List<Pickup> Pickups { get; set; } = new();
     public float GameTime { get; set; }
@@ -24,6 +26,8 @@ public class GameStateData
     {
         Player.Reset();
         Boss.Reset();
+        LandscapeName = "";
+        Obstacles.Clear();
         Tasks.Clear();
         Pickups.Clear();
         GameTime = 0;

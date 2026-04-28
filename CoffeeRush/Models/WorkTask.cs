@@ -39,11 +39,40 @@ public class WorkTask
 
     public int GetPoints()
     {
-        return 100;
+        return Type switch
+        {
+            TaskType.CodeReview => 90,
+            TaskType.BugFix => 120,
+            TaskType.Documentation => 80,
+            TaskType.Meeting => 70,
+            TaskType.Deploy => 140,
+            _ => 100
+        };
     }
 
     public int GetPenalty()
     {
-        return 50;
+        return Type switch
+        {
+            TaskType.CodeReview => 35,
+            TaskType.BugFix => 45,
+            TaskType.Documentation => 25,
+            TaskType.Meeting => 20,
+            TaskType.Deploy => 55,
+            _ => 30
+        };
+    }
+
+    public static float GetRecommendedTime(TaskType type)
+    {
+        return type switch
+        {
+            TaskType.CodeReview => 15f,
+            TaskType.BugFix => 18f,
+            TaskType.Documentation => 22f,
+            TaskType.Meeting => 20f,
+            TaskType.Deploy => 16f,
+            _ => 18f
+        };
     }
 }
