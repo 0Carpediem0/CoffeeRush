@@ -13,6 +13,11 @@ public class GameEngine
     private float _pickupSpawnTimer;
     private float _survivalScoreTimer;
     private float _bossHideTimer;
+    private float _bossStuckTimer;
+    private float _bossEscapeMomentumRemaining;
+    private PointF _bossLastPosition;
+    private BossEscapeWall _bossEscapeWall = BossEscapeWall.None;
+    private BossEscapeWall _lastResolvedWall = BossEscapeWall.None;
 
     private const float WorldWidth = 1000f;
     private const float WorldHeight = 600f;
@@ -22,6 +27,9 @@ public class GameEngine
     private const float SpawnClearance = 28f;
     private const int BossPathCellSize = 40;
     private const float BossHideTime = 4f;
+    private const float BossStuckThreshold = 2f;
+    private const float BossStuckDistanceEpsilon = 6f;
+    private const float BossEscapeExtraDistance = 36f;
     private const float EnergyDecayRate = 0.55f;
     private const int MaxTasks = 4;
     private const int MaxPickups = 4;
@@ -53,6 +61,11 @@ public class GameEngine
         _gameState.Boss.AppearanceTimer = 22f;
         _gameState.Boss.NextAppearanceTime = 32f;
         _bossHideTimer = 0;
+        _bossStuckTimer = 0;
+        _bossEscapeMomentumRemaining = 0;
+        _bossLastPosition = PointF.Empty;
+        _bossEscapeWall = BossEscapeWall.None;
+        _lastResolvedWall = BossEscapeWall.None;
 
         _nextTaskId = 1;
         _nextPickupId = 1;
@@ -163,6 +176,24 @@ public class GameEngine
                 boss.X = entryPoint.X;
                 boss.Y = entryPoint.Y;
             }
+            _bossLastPosition = new PointF(boss.X, boss.Y);
+            _bossStuckTimer = 0;
+            _bossEscapeMomentumRemaining = 0;
+            _bossEscapeWall = BossEscapeWall.None;
+            _lastResolvedWall = BossEscapeWall.None;
+            return;
+        }
+
+        float currentBossSpeed = boss.State == BossState.Chasing ? boss.ChaseSpeed : boss.Speed;
+        if (TryContinueBossEscapeMomentum(currentBossSpeed, deltaTime))
+        {
+            _bossLastPosition = new PointF(boss.X, boss.Y);
+            return;
+        }
+
+        if (TryContinueBossWallEscape(currentBossSpeed, deltaTime))
+        {
+            _bossLastPosition = new PointF(boss.X, boss.Y);
             return;
         }
 
@@ -173,6 +204,10 @@ public class GameEngine
             {
                 boss.Deactivate();
                 _bossHideTimer = 0;
+                _bossStuckTimer = 0;
+                _bossEscapeMomentumRemaining = 0;
+                _bossEscapeWall = BossEscapeWall.None;
+                _lastResolvedWall = BossEscapeWall.None;
             }
             else if (boss.State == BossState.Chasing)
             {
@@ -184,6 +219,7 @@ public class GameEngine
             _bossHideTimer = 0;
             boss.BeginChasing(_random);
             MoveBossTowards(_gameState.Player.X, _gameState.Player.Y, boss.ChaseSpeed, deltaTime);
+            UpdateBossStuckState(_gameState.Player.X, _gameState.Player.Y, boss.ChaseSpeed, deltaTime);
             return;
         }
 
@@ -191,6 +227,7 @@ public class GameEngine
         {
             boss.BeginChasing(_random);
             MoveBossTowards(_gameState.Player.X, _gameState.Player.Y, boss.ChaseSpeed, deltaTime);
+            UpdateBossStuckState(_gameState.Player.X, _gameState.Player.Y, boss.ChaseSpeed, deltaTime);
             return;
         }
 
@@ -208,6 +245,11 @@ public class GameEngine
                 boss.AdvancePatrolPoint();
             }
         }
+
+        UpdateBossStuckState(targetX: boss.State == BossState.Chasing ? _gameState.Player.X : patrolTarget.X,
+            targetY: boss.State == BossState.Chasing ? _gameState.Player.Y : patrolTarget.Y,
+            speed: boss.State == BossState.Chasing ? boss.ChaseSpeed : boss.Speed,
+            deltaTime: deltaTime);
     }
 
     private void UpdateSurvivalScore(float deltaTime)
@@ -441,6 +483,160 @@ public class GameEngine
         {
             TryMoveBossStep(nextWaypoint.X, nextWaypoint.Y, speed, deltaTime);
         }
+    }
+
+    private void UpdateBossStuckState(float targetX, float targetY, float speed, float deltaTime)
+    {
+        var boss = _gameState.Boss;
+        float movedDistance = DistanceTo(boss.X, boss.Y, _bossLastPosition.X, _bossLastPosition.Y);
+
+        if (movedDistance < BossStuckDistanceEpsilon)
+        {
+            _bossStuckTimer += deltaTime;
+        }
+        else
+        {
+            _bossStuckTimer = 0;
+            _bossEscapeWall = BossEscapeWall.None;
+        }
+
+        _bossLastPosition = new PointF(boss.X, boss.Y);
+
+        if (_bossStuckTimer < BossStuckThreshold)
+        {
+            return;
+        }
+
+        _bossEscapeWall = DetectBossAdjacentWall();
+        if (_bossEscapeWall == BossEscapeWall.None)
+        {
+            return;
+        }
+
+        _lastResolvedWall = _bossEscapeWall;
+
+        if (TryContinueBossWallEscape(speed, deltaTime))
+        {
+            _bossStuckTimer = 0;
+            _bossLastPosition = new PointF(_gameState.Boss.X, _gameState.Boss.Y);
+        }
+    }
+
+    private bool TryContinueBossWallEscape(float speed, float deltaTime)
+    {
+        if (_bossEscapeWall == BossEscapeWall.None)
+        {
+            return false;
+        }
+
+        var currentWall = DetectBossAdjacentWall();
+        if (currentWall != _bossEscapeWall)
+        {
+            _bossEscapeMomentumRemaining = BossEscapeExtraDistance;
+            _bossEscapeWall = BossEscapeWall.None;
+            return false;
+        }
+
+        var boss = _gameState.Boss;
+        float moveDistance = speed * deltaTime;
+        float targetX = boss.X;
+        float targetY = boss.Y;
+
+        switch (_bossEscapeWall)
+        {
+            case BossEscapeWall.Left:
+            case BossEscapeWall.Right:
+                targetY -= moveDistance;
+                break;
+            case BossEscapeWall.Top:
+            case BossEscapeWall.Bottom:
+                targetX += moveDistance;
+                break;
+        }
+
+        if (!IsWalkable(targetX, targetY, BossCollisionRadius))
+        {
+            return false;
+        }
+
+        boss.X = targetX;
+        boss.Y = targetY;
+        return true;
+    }
+
+    private bool TryContinueBossEscapeMomentum(float speed, float deltaTime)
+    {
+        if (_bossEscapeMomentumRemaining <= 0 || _bossEscapeWall != BossEscapeWall.None)
+        {
+            return false;
+        }
+
+        var boss = _gameState.Boss;
+        float moveDistance = Math.Min(speed * deltaTime, _bossEscapeMomentumRemaining);
+        float targetX = boss.X;
+        float targetY = boss.Y;
+
+        switch (GetLastEscapeDirection())
+        {
+            case BossEscapeDirection.Up:
+                targetY -= moveDistance;
+                break;
+            case BossEscapeDirection.Right:
+                targetX += moveDistance;
+                break;
+            default:
+                _bossEscapeMomentumRemaining = 0;
+                return false;
+        }
+
+        if (!IsWalkable(targetX, targetY, BossCollisionRadius))
+        {
+            _bossEscapeMomentumRemaining = 0;
+            return false;
+        }
+
+        boss.X = targetX;
+        boss.Y = targetY;
+        _bossEscapeMomentumRemaining -= moveDistance;
+        return true;
+    }
+
+    private BossEscapeDirection GetLastEscapeDirection()
+    {
+        return _lastResolvedWall switch
+        {
+            BossEscapeWall.Left or BossEscapeWall.Right => BossEscapeDirection.Up,
+            BossEscapeWall.Top or BossEscapeWall.Bottom => BossEscapeDirection.Right,
+            _ => BossEscapeDirection.None
+        };
+    }
+
+    private BossEscapeWall DetectBossAdjacentWall()
+    {
+        var boss = _gameState.Boss;
+        const float probeDistance = 10f;
+
+        if (!IsWalkable(boss.X + probeDistance, boss.Y, BossCollisionRadius))
+        {
+            return BossEscapeWall.Right;
+        }
+
+        if (!IsWalkable(boss.X - probeDistance, boss.Y, BossCollisionRadius))
+        {
+            return BossEscapeWall.Left;
+        }
+
+        if (!IsWalkable(boss.X, boss.Y + probeDistance, BossCollisionRadius))
+        {
+            return BossEscapeWall.Bottom;
+        }
+
+        if (!IsWalkable(boss.X, boss.Y - probeDistance, BossCollisionRadius))
+        {
+            return BossEscapeWall.Top;
+        }
+
+        return BossEscapeWall.None;
     }
 
     private void TryMoveBossStep(float targetX, float targetY, float speed, float deltaTime)
@@ -726,4 +922,20 @@ public class GameEngine
     }
 
     private sealed record LandscapePreset(string Name, Booth Booth, List<Obstacle> Obstacles, PointF PlayerSpawn);
+
+    private enum BossEscapeWall
+    {
+        None,
+        Left,
+        Right,
+        Top,
+        Bottom
+    }
+
+    private enum BossEscapeDirection
+    {
+        None,
+        Up,
+        Right
+    }
 }
