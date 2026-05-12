@@ -13,6 +13,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>sprites\%(Filename)%(Extension)</Link>
     </None>
+    <None Include="..\Audio\*.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>audio\%(Filename)%(Extension)</Link>
+    </None>
   </ItemGroup>
 
 </Project>

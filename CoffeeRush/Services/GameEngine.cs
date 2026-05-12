@@ -26,6 +26,8 @@ public class GameEngine
     private const float BossCollisionRadius = 22f;
     private const float SpawnClearance = 28f;
     private const int BossPathCellSize = 40;
+    private const float PlayerMoveProbeStep = 6f;
+    private const float PlayerMoveProbeLimit = 18f;
     private const float BossHideTime = 4f;
     private const float BossStuckThreshold = 2f;
     private const float BossStuckDistanceEpsilon = 6f;
@@ -257,7 +259,9 @@ public class GameEngine
         _survivalScoreTimer += deltaTime;
         if (_survivalScoreTimer >= SurvivalScoreInterval)
         {
-            _gameState.Player.AddScore(10);
+            int survivalTicks = Math.Max(1, (int)(_gameState.GameTime / SurvivalScoreInterval));
+            int timeBonus = 8 + survivalTicks * 2;
+            _gameState.Player.AddScore(timeBonus);
             _survivalScoreTimer = 0;
         }
     }
@@ -387,22 +391,94 @@ public class GameEngine
     private void TryMovePlayerTo(float x, float y)
     {
         var player = _gameState.Player;
+        float totalDx = x - player.X;
+        float totalDy = y - player.Y;
+        float distance = MathF.Sqrt(totalDx * totalDx + totalDy * totalDy);
+        int steps = Math.Max(1, (int)MathF.Ceiling(distance / PlayerMoveProbeStep));
+
+        for (int i = 1; i <= steps; i++)
+        {
+            float nextX = player.X + totalDx / (steps - i + 1);
+            float nextY = player.Y + totalDy / (steps - i + 1);
+
+            if (!TryMovePlayerStep(nextX, nextY))
+            {
+                break;
+            }
+        }
+    }
+
+    private bool TryMovePlayerStep(float x, float y)
+    {
+        var player = _gameState.Player;
 
         if (IsWalkable(x, y, PlayerCollisionRadius))
         {
             player.X = x;
             player.Y = y;
-            return;
+            return true;
         }
 
-        if (IsWalkable(x, player.Y, PlayerCollisionRadius))
+        bool moved = false;
+        if (TrySlidePlayerHorizontally(x))
         {
-            player.X = x;
+            moved = true;
         }
 
-        if (IsWalkable(player.X, y, PlayerCollisionRadius))
+        if (TrySlidePlayerVertically(y))
         {
-            player.Y = y;
+            moved = true;
+        }
+
+        return moved;
+    }
+
+    private bool TrySlidePlayerHorizontally(float targetX)
+    {
+        var player = _gameState.Player;
+        foreach (float offset in GetPlayerProbeOffsets())
+        {
+            float candidateY = player.Y + offset;
+            if (!IsWalkable(targetX, candidateY, PlayerCollisionRadius))
+            {
+                continue;
+            }
+
+            player.X = targetX;
+            player.Y = candidateY;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TrySlidePlayerVertically(float targetY)
+    {
+        var player = _gameState.Player;
+        foreach (float offset in GetPlayerProbeOffsets())
+        {
+            float candidateX = player.X + offset;
+            if (!IsWalkable(candidateX, targetY, PlayerCollisionRadius))
+            {
+                continue;
+            }
+
+            player.X = candidateX;
+            player.Y = targetY;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<float> GetPlayerProbeOffsets()
+    {
+        yield return 0f;
+
+        for (float offset = PlayerMoveProbeStep; offset <= PlayerMoveProbeLimit; offset += PlayerMoveProbeStep)
+        {
+            yield return offset;
+            yield return -offset;
         }
     }
 

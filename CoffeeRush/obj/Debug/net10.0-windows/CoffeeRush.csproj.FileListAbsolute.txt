@@ -29,3 +29,17 @@ C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\CoffeeRush.dll
 C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\CoffeeRush.pdb
 C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\sprites\job.png
 C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\sprites\job.png
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\audio\bgm.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\audio\boss-warning.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\audio\menu-select.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\audio\pickup.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\audio\task-complete.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\audio\bgm.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\audio\boss-warning.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\audio\menu-select.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\audio\pickup.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\audio\task-complete.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\audio\coffee-pickup.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\.codex-build\audio\food-pickup.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\audio\coffee-pickup.wav
+C:\Users\Carpe\Desktop\CoffeRushApp\CoffeeRush\CoffeeRush\bin\Debug\net10.0-windows\audio\food-pickup.wav
