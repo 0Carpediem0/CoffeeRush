@@ -8,9 +8,9 @@ public class LeaderboardService
     private const int MaxEntries = 10;
     private readonly string _filePath;
 
-    public LeaderboardService()
+    public LeaderboardService(string? dataDirectory = null)
     {
-        var dataDir = Path.Combine(
+        var dataDir = dataDirectory ?? Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "CoffeeRush");
         Directory.CreateDirectory(dataDir);

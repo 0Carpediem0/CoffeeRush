@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "CoffeeRush.Tests/1.0.0": {
+        "dependencies": {
+          "CoffeeRush": "1.0.0"
+        },
+        "runtime": {
+          "CoffeeRush.Tests.dll": {}
+        }
+      },
+      "CoffeeRush/1.0.0": {
+        "runtime": {
+          "CoffeeRush.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "CoffeeRush.Tests/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CoffeeRush/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
